@@ -80,11 +80,13 @@ def test_update_price_no_similar_products():
 def test_bulk_update():
     repo = MagicMock()
     search_svc = MagicMock()
-    products = [make_product("50.00"), make_product("50.00")]
-    products[1].id = 2
-    products[1].sku = "SKU-002"
+    product1 = make_product("50.00")
+    product2 = make_product("50.00")
+    product2.id = 2
+    product2.sku = "SKU-002"
+    products = [product1, product2]
     repo.get_all.return_value = products
-    repo.get_by_id.return_value = products[0]
+    repo.get_by_id.side_effect = lambda pid: product1 if pid == 1 else product2
     search_svc.search_and_store_similar.return_value = []  # no updates needed
     service = PriceUpdateService(repo, search_svc)
     results = service.bulk_update_prices()

@@ -1,10 +1,10 @@
 from typing import List
 
 from loguru import logger
-from sentence_transformers import SentenceTransformer
 
 from app.config import get_settings
 from app.core.domain.similar_product import SimilarProduct
+from app.core.ports.embedder import EmbedderPort
 from app.core.ports.product_repository import ProductRepositoryPort
 from app.core.ports.vector_repository import VectorRepositoryPort
 from app.core.ports.web_searcher import WebSearcherPort
@@ -18,15 +18,15 @@ class SearchService:
         product_repo: ProductRepositoryPort,
         vector_repo: VectorRepositoryPort,
         web_searcher: WebSearcherPort,
-        embedding_model: SentenceTransformer,
+        embedder: EmbedderPort,
     ) -> None:
         self._product_repo = product_repo
         self._vector_repo = vector_repo
         self._web_searcher = web_searcher
-        self._embedding_model = embedding_model
+        self._embedder = embedder
 
     def _embed(self, text: str) -> List[float]:
-        return self._embedding_model.encode(text).tolist()
+        return self._embedder.embed(text)
 
     def search_and_store_similar(self, product_id: int) -> List[SimilarProduct]:
         product = self._product_repo.get_by_id(product_id)

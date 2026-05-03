@@ -80,14 +80,14 @@ class PriceUpdateService:
         )
         return updated_product
 
-    def bulk_update_prices(self) -> dict:
-        logger.info("PriceUpdateService: starting bulk price update")
+    def bulk_update_prices(self, force_search: bool = False) -> dict:
+        logger.info(f"PriceUpdateService: starting bulk price update force_search={force_search}")
         products = self._product_repo.get_all()
         results = {"updated": 0, "skipped": 0, "failed": 0}
 
         for product in products:
             try:
-                result = self.update_product_price(product.id)
+                result = self.update_product_price(product.id, force_search=force_search)
                 if result and result.price != product.price:
                     results["updated"] += 1
                 else:

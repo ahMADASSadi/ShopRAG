@@ -35,6 +35,7 @@ class BulkUpdateResponse(BaseModel):
     updated: int
     skipped: int
     failed: int
+    message: str = ""
 
 
 @router.post("/{product_id}/search", response_model=List[SimilarProductResponse])
@@ -109,11 +110,12 @@ def update_product_price(
     )
 
 
-@router.post("/bulk-update", response_model=BulkUpdateResponse)
+@router.post("/bulk-update", status_code=202)
 def bulk_update_prices(
     background_tasks: BackgroundTasks,
+    force_search: bool = False,
     price_svc: PriceUpdateService = Depends(get_price_update_service),
 ):
-    logger.info("POST /price-updates/bulk-update")
-    results = price_svc.bulk_update_prices()
-    return BulkUpdateResponse(**results)
+    logger.info(f"POST /price-updates/bulk-update force_search={force_search}")
+    background_tasks.add_task(price_svc.bulk_update_prices, force_search=force_search)
+    return {"message": "Bulk price update started in the background"}
