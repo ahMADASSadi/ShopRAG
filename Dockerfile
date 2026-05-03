@@ -18,7 +18,7 @@ COPY pyproject.toml uv.lock* ./
 RUN uv sync --frozen --no-dev --no-cache
 
 # Pre-download the embedding model so the container starts instantly
-RUN uv run python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('all-MiniLM-L6-v2')"
+RUN uv run python -c "from transformers import AutoModel, AutoTokenizer; AutoTokenizer.from_pretrained('all-MiniLM-L6-v2'); AutoModel.from_pretrained('all-MiniLM-L6-v2')"
 
 # Copy application code
 COPY app/ ./app/

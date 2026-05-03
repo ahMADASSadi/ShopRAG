@@ -6,7 +6,7 @@ from fastapi import Depends
 
 from app.adapters.db.session import get_db
 from app.adapters.db.product_repo import SQLAlchemyProductRepository
-from app.adapters.embedder.sentence_transformer_embedder import SentenceTransformerEmbedder
+from app.adapters.embedder.auto_model_embedder import AutoModelEmbedder
 from app.adapters.vector_store.qdrant_repo import QdrantVectorRepository
 from app.adapters.web_search.duckduckgo_searcher import DuckDuckGoSearcher
 from app.services.product_service import ProductService
@@ -23,8 +23,8 @@ def get_qdrant_client() -> QdrantClient:
 
 
 @lru_cache()
-def get_embedder() -> SentenceTransformerEmbedder:
-    return SentenceTransformerEmbedder(settings.EMBEDDING_MODEL)
+def get_embedder() -> AutoModelEmbedder:
+    return AutoModelEmbedder(settings.EMBEDDING_MODEL)
 
 
 def get_product_service(db: Session = Depends(get_db)) -> ProductService:
