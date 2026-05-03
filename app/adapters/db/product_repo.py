@@ -1,6 +1,6 @@
 from decimal import Decimal
 from typing import List, Optional
-from datetime import datetime
+from datetime import datetime, timezone
 
 from sqlalchemy.orm import Session
 from loguru import logger
@@ -66,7 +66,7 @@ class SQLAlchemyProductRepository(ProductRepositoryPort):
             return None
         old_price = model.price
         model.price = new_price
-        model.updated_at = datetime.utcnow()
+        model.updated_at = datetime.now(timezone.utc)
 
         price_update = PriceUpdateModel(
             product_id=product_id,

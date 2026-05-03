@@ -1,6 +1,6 @@
 from decimal import Decimal
 from unittest.mock import MagicMock
-from datetime import datetime
+from datetime import datetime, timezone
 
 import pytest
 
@@ -17,8 +17,8 @@ def make_product(product_id: int = 1) -> Product:
         category="Electronics",
         sku=f"SKU-{product_id:03d}",
         stock=10,
-        created_at=datetime.utcnow(),
-        updated_at=datetime.utcnow(),
+        created_at=datetime.now(timezone.utc),
+        updated_at=datetime.now(timezone.utc),
     )
 
 

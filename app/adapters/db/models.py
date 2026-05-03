@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from sqlalchemy import Column, Integer, String, Numeric, DateTime, Text, ForeignKey
 from sqlalchemy.orm import DeclarativeBase, relationship
 
@@ -18,8 +18,8 @@ class ProductModel(Base):
     sku = Column(String(100), unique=True, nullable=False)
     stock = Column(Integer, default=0)
     image_url = Column(String(500), nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
 
     price_updates = relationship("PriceUpdateModel", back_populates="product")
 
@@ -33,6 +33,6 @@ class PriceUpdateModel(Base):
     new_price = Column(Numeric(10, 2), nullable=False)
     source_url = Column(String(500), nullable=True)
     reason = Column(String(500), nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
     product = relationship("ProductModel", back_populates="price_updates")

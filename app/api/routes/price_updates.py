@@ -5,8 +5,9 @@ from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
 from pydantic import BaseModel
 from loguru import logger
 
-from app.api.deps import get_price_update_service, get_search_service
+from app.api.deps import get_price_update_service, get_search_service, get_product_service
 from app.services.price_update_service import PriceUpdateService
+from app.services.product_service import ProductService
 from app.services.search_service import SearchService
 
 router = APIRouter(prefix="/price-updates", tags=["price-updates"])
@@ -84,21 +85,24 @@ def get_similar_products(
 def update_product_price(
     product_id: int,
     force_search: bool = True,
+    product_svc: ProductService = Depends(get_product_service),
     price_svc: PriceUpdateService = Depends(get_price_update_service),
 ):
     logger.info(f"POST /price-updates/{product_id}/update force_search={force_search}")
+    existing = product_svc.get_product(product_id)
+    old_price = existing.price if existing else None
     updated = price_svc.update_product_price(product_id, force_search=force_search)
     if updated is None:
         return PriceUpdateResponse(
             product_id=product_id,
-            old_price=None,
+            old_price=old_price,
             new_price=None,
             updated=False,
             message="No price update was necessary or product not found",
         )
     return PriceUpdateResponse(
         product_id=product_id,
-        old_price=None,
+        old_price=old_price,
         new_price=updated.price,
         updated=True,
         message=f"Price updated to {updated.price}",
